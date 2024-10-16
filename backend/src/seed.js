@@ -6,6 +6,8 @@ const data = {
             password  : "123456",
             phone :"01723846924",
             address : "Dhaka",
+            isAdmin: false,
+            isBanned: false,
         },
         {
             name : "Jane",
@@ -13,6 +15,8 @@ const data = {
             password  : "123456",
             phone :"01723846924",
             address : "Dinajpur",
+            isAdmin: true,
+            isBanned: false,
         }
       ]
 }

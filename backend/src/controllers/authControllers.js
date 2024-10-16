@@ -36,12 +36,11 @@ const handleLogin =  async(req, res, next)=>{
         //check banned user
 
         if(user.isBanned){
-            throw  createError(401, "Your account is banned");
-
+            throw  createError(401, "Your account is banned.  Please contact admin");
         }
         
         // create  token
-        const accessToken = createToken({_id : user._id}, secret_login_Key, "10m" ) 
+        const accessToken = createToken({user : user}, secret_login_Key, "10m" ) 
           
         //set token in cookie
         res.cookie("access_token", accessToken, {

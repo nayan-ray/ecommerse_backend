@@ -16,6 +16,8 @@ const {emailWithNodeMailer} = require("../helper/email");
 
 const getUsers = async(req, res,next) => {
     try {
+        // console.log(req.body.user);
+        
         const search =  req.query.search || '';
         const page =  req.query.page || 1;
         const limit = req.query.limit || 10;
@@ -377,9 +379,96 @@ const updateUser = async(req, res,next) => {
     }
 }
 
+const BanUser = async(req, res,next) => {
+    try {
+       //accept id
 
+        const  id = req.params.id;
+
+      //check user with this id
+
+        const user = await findUserById(id, User);
+
+      //update options
+
+       const  updateOptions = {new : true}
+      
+      //create update object
+       const updateObject={
+          isBanned : true
+       }
+ 
+       const  userUpdated = await User.findByIdAndUpdate(id,  updateObject, updateOptions);
+           
+       //checked  if user is updated
+
+       if(!userUpdated){
+
+          throw createError(404, 'Some thing went wrong');
+
+       }
+    
+
+        return successResponse(res,{
+            statusCode  : 200,
+            message  : 'user Banned successfully',
+            payload : {
+                              
+            }
+        })
+
+    } catch (error) {
+        
+        next(error)
+    }
+}
+
+const UnBanUser = async(req, res,next) => {
+    try {
+       //accept id
+
+        const  id = req.params.id;
+
+      //check user with this id
+
+        const user = await findUserById(id, User);
+
+      //update options
+
+       const  updateOptions = {new : true}
+      
+      //create update object
+       const updateObject={
+          isBanned : false
+       }
+ 
+       const  userUpdated = await User.findByIdAndUpdate(id,  updateObject, updateOptions);
+           
+       //checked  if user is updated
+
+       if(!userUpdated){
+
+          throw createError(404, 'Some thing went wrong');
+
+       }
+    
+
+        return successResponse(res,{
+            statusCode  : 200,
+            message  : 'user Un-Banned successfully',
+            payload : {
+                              
+            }
+        })
+
+    } catch (error) {
+        
+        next(error)
+    }
+}
 module.exports = {getUsers,  getUserById,  deleteUserById, 
-     userRegister,  activeUserProcess, updateUser};
+     userRegister,  activeUserProcess, updateUser, BanUser,  UnBanUser};
+
 
 
 

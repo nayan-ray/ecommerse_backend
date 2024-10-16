@@ -14,9 +14,9 @@ const isLoggedIn = async(req, res,  next) => {
         if(!decoded){
             throw createError(401, 'Unauthorized, please login first');
         }
-        console.log(decoded);
+       
         
-        req.body.userId  = decoded._id;
+        req.body.user  = decoded.user;
 
         next();
     } catch (error) {
@@ -45,5 +45,36 @@ const isLoggedOut = async(req , res,  next) => {
     }
 }
 
+const isAdmin = async(req, res,  next) => {
+    try {
+        //accept token  from cookie
 
-module.exports = {isLoggedIn,  isLoggedOut};
+        const accessToken = req.cookies.access_token;
+
+        //check  if token is valid
+
+        if (!accessToken) {
+            throw createError(401,  'Unauthorized, you are not logged in');
+        }
+        //decoded  token to get user
+
+        const  decoded = jwt.verify(accessToken, secret_login_Key);
+        //check decoded 
+        if(!decoded){
+            throw createError(401, 'Unauthorized, please login first');
+        }
+        //check if user is admin
+
+        if(!decoded.user.isAdmin){
+            throw createError(403, 'Forbidden, you are not an admin')
+        }
+        
+        //finally next middleware
+        next();
+    } catch (error) {
+        next(error)
+    }
+    
+}
+
+module.exports = {isLoggedIn,  isLoggedOut, isAdmin};
