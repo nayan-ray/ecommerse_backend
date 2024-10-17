@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const fs  = require("fs");
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const createError = require('http-errors');
 const { successResponse } = require("./responseControllers");
@@ -8,7 +9,7 @@ const  mongoose  = require("mongoose");
 const { findUserById } = require("../services/findUserById");
 const { deleteImageByPath } = require("../helper/deleteImage");
 const createToken = require("../helper/jsonwebtoken");
-const { secretKey } = require("../secret");
+const { secretKey, secret_password_reset_key } = require("../secret");
 const {emailWithNodeMailer} = require("../helper/email");
 
 
@@ -466,8 +467,206 @@ const UnBanUser = async(req, res,next) => {
         next(error)
     }
 }
+
+const updateUserPassword = async(req, res,next) => {
+    try {
+       //accept id, email, old password , new password
+        const {email, oldPassword, newPassword} = req.body;
+        const  id = req.params.id;
+
+        //check user with this id
+
+        const user = await findUserById(id, User);
+
+        //check email
+        if(user.email !== email){
+            throw createError(404, 'Email not match');
+        }
+
+        //password matching
+        const isValidPassword = await bcrypt.compare(oldPassword, user.password);
+        if(!isValidPassword){
+            throw createError(404, 'Old password not match');
+        }
+
+       //update options
+       
+       const  updateOptions = {new : true}
+      
+      //create update object
+       const updateObject={
+          password : newPassword
+       }
+ 
+       const  userUpdated = await User.findByIdAndUpdate(id,  updateObject, updateOptions);
+           
+       //checked  if user is updated
+
+       if(!userUpdated){
+
+          throw createError(404, 'Some thing went wrong. password  not updated');
+       }
+    
+
+        return successResponse(res,{
+            statusCode  : 200,
+            message  : 'user Un-Banned successfully',
+            payload : {
+                 user : userUpdated             
+            }
+        })
+
+    } catch (error) {
+        
+        next(error)
+    }
+}
+
+const userForgetPassword= async(req, res,next) => {
+    try {
+        //taken email
+       const  { email} = req.body;
+     
+       
+       //check user exist
+     
+       const  user = await User.findOne({email  : email});
+
+       
+       if(!user){
+          throw createError(409,
+             "User with this email  not exist. Please sign up"
+            );
+
+        }
+        
+   
+
+        //create token object
+        const tokenObject = {
+            email
+        }
+        
+        //create token
+        
+        const token = createToken(tokenObject, secret_password_reset_key, '10m');
+
+       //prepare email
+
+                 const emailData = {
+                    email: email,
+                    subject : 'Password Reset Email',
+                    text: "hello world",
+                    html : `
+                      <h2> Hello ${user.name} </h2>
+                      <p>Please click here to
+                         <a href='http://localhost:3000/api/user/forget-password/${token}'>
+                          reset your password
+                        </a>
+                       </p>
+                    `
+               }
+      
+      
+         //sendEmail
+      
+        //  try {
+        //     await emailWithNodeMailer(emailData);
+        //  } catch (error) {
+        //      throw error;
+        //  }
+
+        
+        return successResponse(res,{
+            statusCode  : 200,
+            message  : 'user email sent  successfully',
+            payload :{
+                token
+            }
+        })
+
+
+
+    } catch (error) {
+        
+        next(error)
+    }
+}
+
+const resetUserPassword= async(req, res, next) => {
+    
+    try {
+        //accept token, email and check
+        const {token, password} = req.body;
+
+        if(!token) {
+          throw createError(404, 'token not found');
+        }
+      // token verify and check
+
+        try {
+
+            const decoded = jwt.verify(token, secret_password_reset_key);
+            
+            if(!decoded ) {
+            throw createError(404, 'unable to reset password ');
+            }
+                      
+             //user  exist or not check
+
+              const userExist = await User.exists({email  : decoded.email});
+       
+              if(!userExist){
+                  throw createError(409,
+                  "User with this email  not exist. Please sign up"
+                 );
+
+               }
+
+              
+        
+           //finally reset password in database
+            const user = await  User.findOneAndUpdate({email : decoded.email}, {password}, {new : true});
+
+          
+             return successResponse(res,{
+            statusCode  : 200,
+            message  : 'user password reset successfully',
+            payload :{
+                user
+            }
+        })
+
+        } catch (error) {
+             if(error.name === "TokenExpiredError"){
+                throw createError(401, 'token expired');
+             } else if(  error.name === "JsonWebTokenError"){
+
+               throw createError(401, 'invalid token');
+             } else if(error instanceof mongoose.Error){
+                throw createError(500, 'mongoose error');
+             } else{
+                throw error;
+             }
+            
+        }
+   
+    } catch (error) {
+        console.log("hello error");
+        
+        console.log( error);
+
+        console.log("hello error"); 
+        next(error) ; 
+    }
+    
+    
+}
+
 module.exports = {getUsers,  getUserById,  deleteUserById, 
-     userRegister,  activeUserProcess, updateUser, BanUser,  UnBanUser};
+     userRegister,  activeUserProcess, updateUser,
+      BanUser,  UnBanUser , updateUserPassword,
+       userForgetPassword, resetUserPassword};
 
 
 
