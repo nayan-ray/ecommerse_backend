@@ -7,7 +7,6 @@ const findUserById = async  (id, Model, options={}) => {
 
       try {
         
-
         const  user = await Model.findById(id , options);
                        
         if(!user) {

@@ -7,7 +7,8 @@ const { userRouter } = require('./routers/userRouters');
 const { seedRouter } = require('./routers/seedRouter');
 const { errorResponse } = require('./controllers/responseControllers');
 const authRouter = require('./routers/authRouter');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const categoryRouter = require('./routers/categoryRouter');
 
 
 const limiter = rateLimit({
@@ -27,6 +28,8 @@ app.use(express.urlencoded({extended:true}))
 app.use("/api/users", userRouter);
 app.use("/api/seed", seedRouter);
 app.use("/api/auth", authRouter)
+app.use("/api/category",  categoryRouter);
+
 
 
 //client error handling
