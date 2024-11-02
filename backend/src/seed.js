@@ -28,6 +28,28 @@ const data = {
           isBanned: false,
        }
 
+      ],
+      products : [
+        {
+            name : "iphone 11",
+            slug :  "iphone-11 ",
+            description :  "This is a good phone",
+            price  :  50000 ,
+            image : '',
+            quantity : 10 ,
+            sold : 50,
+            category : '6725bf2d03ece382cc62b9ba'
+        },
+        {
+            name : "samsung s10",
+            slug :  "samsung-s10 ",
+            description :  "This is a good phone",
+            price  :  40000 ,
+            image : '',
+            quantity : 10 ,
+            sold : 50 ,
+            category : '6725bf8203ece382cc62b9bc'
+        }
       ]
 }
 
