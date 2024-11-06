@@ -1,6 +1,7 @@
 const express  = require('express');
 const app = express();
-var morgan = require('morgan');
+const cors = require('cors')
+const morgan = require('morgan');
 const createError = require('http-errors');
 const rateLimit = require("express-rate-limit");
 const { userRouter } = require('./routers/userRouters');
@@ -10,6 +11,8 @@ const authRouter = require('./routers/authRouter');
 const cookieParser = require('cookie-parser');
 const categoryRouter = require('./routers/categoryRouter');
 const productSeedRouter = require('./routers/productSeedRouter');
+const productRouter = require('./routers/productRouter');
+const path = require('path'); 
 
 
 const limiter = rateLimit({
@@ -18,6 +21,7 @@ const limiter = rateLimit({
 	message :"to many requested from this ip"
 	
 });
+app.use(cors())
 app.use(cookieParser());
 app.use(limiter);
 app.use(morgan("dev"));
@@ -31,6 +35,7 @@ app.use("/api/seed", seedRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/category",  categoryRouter);
 app.use("/api/products/seed", productSeedRouter);
+app.use("/api/products", productRouter);
 
 
 

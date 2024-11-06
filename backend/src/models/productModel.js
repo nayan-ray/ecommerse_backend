@@ -66,7 +66,7 @@ const productSchema =  new Schema({
         default : ''
     },
     category : {
-        type : Schema.Types.ObjectId,
+        type : Schema.ObjectId,
         ref : 'Category',
         required : [true, 'Category is required'],
     }
@@ -79,5 +79,5 @@ const productSchema =  new Schema({
 
 );
 
-const  Product = model('products', productSchema);
+const  Product = model('Product', productSchema);
 module.exports =  Product;

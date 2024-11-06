@@ -9,7 +9,6 @@ const productSeedHandler = async (req, res, next)=>{
       //insert products
       const products = await Product.insertMany(data.products);
       return successResponse(res, {
-        status: 201,
         message: "products seeded successfully",
         payload : {
             products
