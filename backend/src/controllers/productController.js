@@ -89,4 +89,42 @@ const deleteSingleProductHandler =async(req, res, next)=>{
     }
 }
 
-module.exports = {crateProductHandler,  readSingleProductHandler, deleteSingleProductHandler};
+const getAllProductHandler =async(req, res, next)=>{
+    try {
+        const page = req.query.page || 1;
+        const search = req.query.search || '';
+        const limit = req.query.limit || 1;
+
+        const searchValue = new RegExp('.*' + search + '.*')
+
+        const filter = {
+            name : {$regex : searchValue}
+        }
+        const products = await Product.find(filter)
+                         .skip((page-1)* limit)
+                         .limit(limit);
+
+        const totalDoc = await Product.countDocuments(filter);
+        const totalPage = Math.ceil(totalDoc / limit);
+
+        return successResponse(res,{
+            statusCode: 200,
+            message  : 'All products received successfully',
+            payload : {
+                  products : products,
+                  pagination : {
+                      totalPage : totalPage,
+                      prevPage : page - 1 > 0 ? page - 1 : null,
+                      currentPage : page,
+                      nextPage : page + 1 <= totalPage ? page + 1 : null
+                  }
+            }
+        })     
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+
+module.exports = {crateProductHandler,  readSingleProductHandler, deleteSingleProductHandler, getAllProductHandler};
