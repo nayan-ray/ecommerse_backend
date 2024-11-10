@@ -125,6 +125,41 @@ const getAllProductHandler =async(req, res, next)=>{
     }
 }
 
+const updateProductHandler =async(req, res, next)=>{
+    try {
+        const {slug} = req.params;
+
+        const updateObj ={};
+
+        const allowedField =["name", "description", "price",  "category", "shipping", "quantity","sold"];
+        
+        for(const key in req.body){
+            if(allowedField.includes(key)){
+                updateObj[key] = req.body[key];
+            }
+        }
+        
+        if(updateObj.name){
+            updateObj.slug= slugify(updateObj.name)
+        }
+
+        const updatedProduct = await Product.findOneAndUpdate({slug: slug}, updateObj, {new: true});
+        
+        if(!updatedProduct){
+            throw new Error('Product not found')
+        }
+
+        return successResponse(res,{
+            statusCode: 200,
+            message  : 'Product updated successfully',
+            payload : {
+                updatedProduct 
+            }
+        })     
+    } catch (error) {
+        next(error)
+    }
+}
 
 
-module.exports = {crateProductHandler,  readSingleProductHandler, deleteSingleProductHandler, getAllProductHandler};
+module.exports = {crateProductHandler,  readSingleProductHandler, deleteSingleProductHandler, getAllProductHandler, updateProductHandler};
