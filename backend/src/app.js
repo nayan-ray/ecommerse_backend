@@ -28,6 +28,9 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}))
 
+//image url
+app.use("/images", express.static("Public/images/usersImages"))
+
 //api
 
 app.use("/api/users", userRouter);
