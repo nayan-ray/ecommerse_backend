@@ -510,7 +510,7 @@ const updateUserPassword = async(req, res,next) => {
 
         return successResponse(res,{
             statusCode  : 200,
-            message  : 'user Un-Banned successfully',
+            message  : 'user updated successfully',
             payload : {
                  user : userUpdated             
             }
@@ -563,7 +563,7 @@ const userForgetPassword= async(req, res,next) => {
                          <a href='http://localhost:3000/api/user/forget-password/${token}'>
                           reset your password
                         </a>
-                       </p>
+                       </p> 
                     `
                }
       
@@ -596,7 +596,7 @@ const userForgetPassword= async(req, res,next) => {
 const resetUserPassword= async(req, res, next) => {
     
     try {
-        //accept token, email and check
+        //accept token, password and check
         const {token, password} = req.body;
 
         if(!token) {

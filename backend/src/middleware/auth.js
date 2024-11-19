@@ -5,19 +5,29 @@ const { secret_login_Key } = require('../secret');
 
 const isLoggedIn = async(req, res,  next) => {
     try {
+
+        //taken token from cookies
+
         const accessToken = req.cookies.access_token;
+
+        //check if token is valid
         if (!accessToken) {
             throw createError(401,  'Unauthorized, you are not logged in');
         }
+        //verify token
+
         const  decoded = jwt.verify(accessToken, secret_login_Key);
+        // check if user is active
+
 
         if(!decoded){
             throw createError(401, 'Unauthorized, please login first');
         }
        
-        
-        req.body.user  = decoded.user;
+        //set user in req object
 
+        req.body.user  = decoded.user;
+        // next middleware
         next();
     } catch (error) {
         next(error)
@@ -27,7 +37,9 @@ const isLoggedIn = async(req, res,  next) => {
 
 const isLoggedOut = async(req , res,  next) => {
     try {
+        // taken token from cookies
         const accessToken = req.cookies.access_token;
+        // check if token is valid
         if (accessToken) {
             try {
                 const  decoded = jwt.verify(accessToken, secret_login_Key);
@@ -38,7 +50,7 @@ const isLoggedOut = async(req , res,  next) => {
                 throw error;
             }
         }
-
+    // finally next middleware
         next();
     } catch (error) {
         next(error)
